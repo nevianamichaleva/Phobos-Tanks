@@ -1,0 +1,12 @@
+1. Game
+type: Tanks
+-name: Phobos-Tanks
+
+
+-Things we need:("*" important)
+*Login screen(input name of player);
+a. Tank rotating image.
+b. Better texture background.
+c. Sounds.
+d. Instructions.
+
