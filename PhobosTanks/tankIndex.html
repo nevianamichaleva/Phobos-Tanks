@@ -1,0 +1,106 @@
+<html>
+
+<head>
+    <script src="tank.js"></script>
+    <script src="ball.js"></script>
+    <script src="keys.js"></script>
+    <script src="obstackle.js"></script>
+    <script type="text/javascript">
+        const AVAILABLE_KEYS = [Keys.KEY_W,
+            Keys.KEY_S,
+            Keys.KEY_A,
+            Keys.KEY_D
+        ];
+
+        var _canvas;
+        var _context;
+        var _tank;
+        var _keyStates = {};
+
+        var _obstacles = [];
+        var _backgroundImg = new Image();
+
+        function clear() {
+            _context.clearRect(0, 0, _canvas.width, _canvas.height);
+        }
+
+        function init() {
+            _backgroundImg.src = "backgound.jpg";
+
+            _canvas = document.getElementById("canvas");
+
+            _context = _canvas.getContext("2d");
+            _context.font = "16px arial";
+
+            _canvas.onkeydown = canvas_keyDown;
+            _canvas.onkeyup = canvas_keyUp;
+            _canvas.onmousemove = canvas_mousemove;
+            _canvas.onmousedown = canvas_mousedown;
+
+            _tank = new Tank(_canvas.width, _canvas.height, _context);
+            window.setInterval(update, 50);
+
+        }
+
+        function draw() {
+            clear();
+            _context.drawImage(_backgroundImg, 0, 0, _canvas.width, _canvas.height);
+            for (var i = 0; i < _obstacles.length; i++) {
+                _obstacles[i].draw();
+            }
+            _tank.draw();
+            _context.fillText("Scores: " + _tank.scores, 10, 20);
+        }
+
+        function update() {
+            _tank.handleInput(_keyStates);
+
+            if (_obstacles.length < 10)
+                _obstacles.push(new Obstacle(_canvas.width, _canvas.height, _context));
+
+            for (var i = 0; i < _obstacles.length; i++) {
+                var ob = _obstacles[i];
+                ob.update();
+
+                if (ob.isExploded) {
+                    _obstacles.splice(i--, 1);
+                    continue;
+                }
+            }
+            _tank.update(_obstacles);
+
+            draw();
+        }
+
+        function canvas_mousemove(e) {
+
+            var x = e.pageX - _canvas.offsetLeft;
+            var y = e.pageY - _canvas.offsetTop;
+            _tank.rotateCannon(x, y);
+        }
+
+        function canvas_mousedown(e) {
+            _tank.fire();
+        }
+
+        function canvas_keyDown(e) {
+            if (AVAILABLE_KEYS.indexOf(e.keyCode) != -1)
+                _keyStates[e.keyCode] = true;
+        }
+
+        function canvas_keyUp(e) {
+            if (_keyStates[e.keyCode])
+                _keyStates[e.keyCode] = false;
+        }
+
+        window.onload = function() {
+            init();
+        }
+    </script>
+</head>
+
+<body>
+    <canvas id="canvas" width="736" height="514" tabindex="1" style="border: 1px solid;cursor: crosshair"></canvas>
+</body>
+
+</html>
